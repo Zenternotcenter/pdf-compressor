@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Compressor Pro — บีบอัด PDF คมชัดระดับมืออาชีพ</title>
+    <meta name="description" content="บีบอัดไฟล์ PDF ออนไลน์ รักษาความคมชัดแบบ Vector 100% ตัวหนังสือคมกริบ พร้อมฟังก์ชันแบ่งไฟล์ตามขนาดเป้าหมาย">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            try {
+                const savedMode = localStorage.getItem('pdf_theme_mode');
+                if (savedMode === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+                const savedColor = localStorage.getItem('pdf_theme_color');
+                if (savedColor) {
+                    document.documentElement.style.setProperty('--accent-primary', savedColor);
+                    const savedHover = localStorage.getItem('pdf_theme_hover');
+                    if (savedHover) document.documentElement.style.setProperty('--accent-hover', savedHover);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+        :root, [data-theme="dark"] {
+            --bg-primary: #0a0d14;
+            --bg-secondary: #111622;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            /* Solid Accent Theme Color (Default: Blue #2563eb) - No Gradients */
+            --accent-primary: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-subtle: rgba(37, 99, 235, 0.12);
+            --accent-border: rgba(37, 99, 235, 0.35);
+
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --error: #ef4444;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --dropzone-bg: rgba(255, 255, 255, 0.015);
+            --dropzone-border: rgba(255, 255, 255, 0.15);
+            --preview-bg: rgba(0, 0, 0, 0.3);
+            --preview-box-border: var(--glass-border);
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --split-ctrl-bg: rgba(0, 0, 0, 0.25);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f1f5f9;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --glass-border: #e2e8f0;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+
+            --success: #059669;
+            --success-bg: rgba(5, 150, 105, 0.1);
+            --warning: #d97706;
+            --warning-bg: rgba(217, 119, 6, 0.1);
+            --error: #dc2626;
+
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+
+            --input-bg: #f8fafc;
+            --dropzone-bg: #f8fafc;
+            --dropzone-border: #cbd5e1;
+            --preview-bg: #f8fafc;
+            --preview-box-border: #e2e8f0;
+            --modal-bg: rgba(15, 23, 42, 0.75);
+            --split-ctrl-bg: #f8fafc;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        /* SVG Icon System */
+        .icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .icon-xs { width: 14px; height: 14px; }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-md { width: 20px; height: 20px; }
+        .icon-lg { width: 24px; height: 24px; }
+        .icon-xl { width: 38px; height: 38px; }
+        .icon.spin {
+            animation: spin 0.8s linear infinite;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+        }
+
+        /* Top Navigation & Theme Switcher Bar */
+        .top-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+        .top-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .mode-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            box-shadow: var(--shadow-card);
+        }
+        .mode-toggle-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+            background: var(--bg-card-hover);
+        }
+        .theme-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(16px);
+        }
+        .theme-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .color-palette {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            position: relative;
+            padding: 0;
+            outline: none;
+        }
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+        .color-swatch.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px var(--accent-primary);
+        }
+        .custom-color-picker-label {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px dashed var(--glass-border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .custom-color-picker-label:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+        .custom-color-picker-label input[type="color"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            border-radius: 999px;
+            font-size: 0.84rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+        .header h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.02rem;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* Card System */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 24px;
+            transition: all 0.25s ease;
+        }
+
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed var(--dropzone-border);
+            border-radius: var(--radius-md);
+            padding: 44px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--dropzone-bg);
+        }
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent-primary);
+            background: var(--accent-subtle);
+            transform: translateY(-2px);
+        }
+        .dropzone-icon {
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+        }
+        .dropzone-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .dropzone-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        #fileInput { display: none; }
+
+        /* Selected File Badge */
+        .file-selected {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            border-radius: var(--radius-md);
+            margin-top: 16px;
+        }
+        .file-selected.active { display: flex; }
+        .file-info-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            overflow: hidden;
+        }
+        .file-icon-lg {
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+        }
+        .file-name-text {
+            font-weight: 600;
+            font-size: 0.98rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 460px;
+        }
+        .file-size-text {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+        }
+        .remove-file-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.84rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .remove-file-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: var(--error);
+        }
+
+        /* Presets Grid */
+        .presets-label {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 24px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .preset-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .preset-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+        .preset-card.active {
+            background: var(--accent-subtle);
+            border-color: var(--accent-primary);
+        }
+        .preset-card-title {
+            font-weight: 600;
+            font-size: 0.96rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .preset-card.active .preset-card-title {
+            color: var(--accent-primary);
+        }
+        .preset-card-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Custom Options Box */
+        .custom-options {
+            display: none;
+            background: var(--dropzone-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .custom-options.active { display: grid; }
+        .input-group label {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .input-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.92rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-control:focus { border-color: var(--accent-primary); }
+
+        /* Submit Button (Solid Accent - No Gradient) */
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent-primary);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        .submit-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Processing State */
+        .processing-card {
+            display: none;
+            text-align: center;
+            padding: 48px 24px;
+        }
+        .processing-card.active { display: block; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--accent-subtle);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .processing-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        /* Real-Time Progress Bar (Solid Color - No Gradient) */
+        .progress-container {
+            max-width: 560px;
+            margin: 20px auto 16px;
+        }
+        .progress-bar-track {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        [data-theme="light"] .progress-bar-track {
+            background: #e2e8f0;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 5%;
+            background: var(--accent-primary);
+            border-radius: 999px;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        .progress-step-msg {
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 82%;
+            text-align: left;
+        }
+        .progress-pct {
+            font-family: 'Inter', monospace;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-size: 0.95rem;
+        }
+        .processing-subtext {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Result Section */
+        .result-section { display: none; }
+        .result-section.active { display: block; }
+
+        .result-summary-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--success-bg);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .summary-title {
+            font-weight: 600;
+            color: var(--success);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Page Navigator Bar */
+        .page-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: var(--dropzone-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            font-size: 0.88rem;
+        }
+        .page-nav-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.84rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .page-indicator {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        /* Variant Tabs for Preview */
+        .variant-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .vtab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .vtab-btn:hover { color: var(--text-primary); border-color: var(--accent-primary); }
+        .vtab-btn.active {
+            background: var(--accent-subtle);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* Preview Comparison View */
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+        .preview-box {
+            background: var(--preview-bg);
+            border: 1px solid var(--preview-box-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .preview-tag {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .preview-tag.before {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+        [data-theme="light"] .preview-tag.before {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        .preview-tag.after {
+            background: var(--accent-subtle);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-border);
+        }
+        .preview-size {
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+        .preview-img-wrapper {
+            width: 100%;
+            height: 380px;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: zoom-in;
+            border: 1px solid var(--glass-border);
+        }
+        .preview-img-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .zoom-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Variant Options Cards */
+        .variants-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .variants-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .variant-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .variant-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+        .variant-card.recommended {
+            background: var(--accent-subtle);
+            border-color: var(--accent-primary);
+        }
+        .variant-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .variant-name-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .variant-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        .variant-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            color: var(--accent-primary);
+        }
+        .variant-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+        .variant-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .variant-size-stat {
+            text-align: right;
+        }
+        .variant-size-mb {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .variant-reduction {
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+        .download-action-btn {
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .download-action-btn:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+        .download-action-btn.primary {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+        .download-action-btn.primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: #ffffff;
+        }
+
+        /* PDF DPI Analyzer Section (Equivalent to APITemplate.io) */
+        .dpi-analyzer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .dpi-analyzer-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--accent-primary);
+        }
+        .dpi-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .dpi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            padding: 3px 10px;
+            border-radius: 999px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .dpi-main-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .dpi-sub-desc {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .dpi-toggle-btn {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .dpi-toggle-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+            background: var(--accent-subtle);
+        }
+        .dpi-card-body {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        .dpi-card-body.collapsed {
+            display: none;
+        }
+        .dpi-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .dpi-stat-box {
+            background: var(--split-ctrl-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+        }
+        .dpi-stat-box.highlight {
+            border-color: var(--accent-border);
+            background: var(--accent-subtle);
+        }
+        .dpi-stat-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .dpi-stat-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 2px;
+        }
+        .dpi-stat-hint {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+        .dpi-quality-bar-wrap {
+            margin-bottom: 16px;
+        }
+        .dpi-bar-legend {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .legend-dot.print { background: #10b981; }
+        .legend-dot.standard { background: #2563eb; }
+        .legend-dot.web { background: #f59e0b; }
+
+        .dpi-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .dpi-filter-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .dpi-filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .dpi-filter-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+        .dpi-filter-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+        .dpi-search-field {
+            padding: 6px 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            width: 180px;
+            transition: border-color 0.2s;
+        }
+        .dpi-search-field:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .dpi-table-container {
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            max-height: 420px;
+            overflow-y: auto;
+            background: var(--bg-card);
+        }
+        .dpi-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+        }
+        .dpi-table th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 10px 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border);
+            white-space: nowrap;
+            z-index: 2;
+        }
+        .dpi-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+        .dpi-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+        .dpi-img-thumb {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            display: block;
+            cursor: zoom-in;
+            transition: transform 0.15s;
+        }
+        .dpi-img-thumb:hover {
+            transform: scale(1.15);
+        }
+        .dpi-val-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Inter', monospace;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .dpi-val-pill.print {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .dpi-val-pill.standard {
+            background: rgba(37, 99, 235, 0.12);
+            color: #2563eb;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+        .dpi-val-pill.web {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .dpi-img-dl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.76rem;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .dpi-img-dl-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: var(--accent-subtle);
+        }
+        .dpi-empty-msg {
+            padding: 30px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        /* Smart Split Card (Solid Accent Bar - No Gradient) */
+        .split-card {
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .split-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--accent-primary);
+        }
+        .split-header {
+            margin-bottom: 18px;
+        }
+        .split-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            background: var(--bg-card);
+            border: 1px solid var(--accent-border);
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 6px;
+        }
+        .split-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .split-desc {
+            font-size: 0.86rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .split-controls {
+            background: var(--split-ctrl-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .split-mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .split-mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.86rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .split-mode-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+        .split-mode-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .split-input-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+        .split-input-row label {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+        .split-input {
+            width: 140px;
+            padding: 8px 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+        }
+        .split-input:focus {
+            border-color: var(--accent-primary);
+        }
+        .split-action-btn {
+            width: 100%;
+            padding: 12px 18px;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .split-action-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Split Results Box */
+        .split-results-box {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .split-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .split-results-title {
+            font-weight: 600;
+            color: var(--success);
+            font-size: 0.98rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .download-zip-btn {
+            padding: 8px 16px;
+            background: var(--success-bg);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 8px;
+            color: var(--success);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .download-zip-btn:hover {
+            background: var(--success);
+            color: #ffffff;
+        }
+        .split-parts-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+        }
+        .split-part-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .split-part-card:hover {
+            border-color: var(--accent-primary);
+        }
+        .part-info-num {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--accent-primary);
+        }
+        .part-info-pages {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .part-info-size {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .part-dl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-border);
+            transition: all 0.15s;
+        }
+        .part-dl-btn:hover {
+            background: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        /* Result Bottom Actions */
+        .result-bottom-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .result-bottom-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Reset Button */
+        .reset-action-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .reset-action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        /* Delete Immediately Button */
+        .delete-action-btn {
+            padding: 14px 22px;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius-md);
+            color: #ef4444;
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .delete-action-btn:hover {
+            background: rgba(239, 68, 68, 0.16);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+        .delete-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Floating Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #111827;
+            color: #f9fafb;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .toast-notification svg {
+            color: #10b981;
+            flex-shrink: 0;
+        }
+        [data-theme="light"] .toast-notification {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Zoom Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--modal-bg);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            overflow: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .modal-content img {
+            display: block;
+            max-width: 100%;
+        }
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: var(--error);
+            border-color: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px 12px 60px; }
+            .header h1 { font-size: 1.8rem; }
+            .preview-container { grid-template-columns: 1fr; }
+            .variant-card { flex-direction: column; align-items: flex-start; gap: 14px; }
+            .variant-actions { width: 100%; justify-content: space-between; }
+            .split-input-row { flex-direction: column; align-items: flex-start; }
+            .split-input { width: 100%; }
+            .top-nav-bar { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Top Bar: Mode Switcher (Dark/Light) + Color Switcher -->
+    <div class="top-nav-bar">
+        <div class="top-controls-group">
+            <!-- Mode Toggle Button -->
+            <button class="mode-toggle-btn" id="modeToggleBtn" title="สลับโหมดสว่าง/โหมดมืด">
+                <span id="modeIcon">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </span>
+                <span id="modeText">โหมดมืด</span>
+            </button>
+
+            <!-- Color Palette -->
+            <div class="theme-switcher">
+                <span class="theme-label">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path><circle cx="12" cy="12" r="4"></circle></svg>
+                    สี:
+                </span>
+                <div class="color-palette" id="colorPalette">
+                    <button class="color-swatch active" data-color="#2563eb" data-hover="#1d4ed8" style="background-color: #2563eb;" title="น้ำเงิน (Blue)"></button>
+                    <button class="color-swatch" data-color="#4f46e5" data-hover="#4338ca" style="background-color: #4f46e5;" title="คราม (Indigo)"></button>
+                    <button class="color-swatch" data-color="#059669" data-hover="#047857" style="background-color: #059669;" title="เขียว (Emerald)"></button>
+                    <button class="color-swatch" data-color="#7c3aed" data-hover="#6d28d9" style="background-color: #7c3aed;" title="ม่วง (Violet)"></button>
+                    <button class="color-swatch" data-color="#d97706" data-hover="#b45309" style="background-color: #d97706;" title="ส้ม (Amber)"></button>
+                    <button class="color-swatch" data-color="#e11d48" data-hover="#be123c" style="background-color: #e11d48;" title="แดง (Rose)"></button>
+                    <button class="color-swatch" data-color="#475569" data-hover="#334155" style="background-color: #475569;" title="เทา (Slate)"></button>
+                    <label class="custom-color-picker-label" title="เลือกสีเอง">
+                        <input type="color" id="customColorPicker" value="#2563eb">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-badge">
+            <svg class="icon icon-xs" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Multi-Threaded Parallel Engine (v7)
+        </div>
+        <h1>PDF Compressor Pro</h1>
+        <p>บีบอัดไฟล์ PDF อัจฉริยะ รักษาความคมชัดแบบ Vector 100% ตัวหนังสือคมกริบ พร้อมฟังก์ชันแบ่งไฟล์ตามขนาดเป้าหมาย</p>
+    </header>
+
+    <!-- Upload Card -->
+    <div class="card" id="uploadCard">
+        <div class="dropzone" id="dropzone">
+            <div id="dropzoneEmpty">
+                <div class="dropzone-icon">
+                    <svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <div class="dropzone-title">ลากไฟล์ PDF มาวางที่นี่</div>
+                <div class="dropzone-subtitle">หรือคลิกเพื่อเลือกไฟล์ · รองรับไฟล์สูงสุด 150MB</div>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf,application/pdf">
+        </div>
+
+        <div class="file-selected" id="fileSelected">
+            <div class="file-info-group">
+                <div class="file-icon-lg">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </div>
+                <div>
+                    <div class="file-name-text" id="fileName">document.pdf</div>
+                    <div class="file-size-text" id="fileSize">0 MB</div>
+                </div>
+            </div>
+            <button class="remove-file-btn" id="removeFileBtn">
+                <svg class="icon icon-xs" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                เปลี่ยนไฟล์
+            </button>
+        </div>
+
+        <!-- Presets -->
+        <div class="presets-label">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            เลือกระดับการบีบอัดที่ต้องการ:
+        </div>
+        <div class="presets-grid">
+            <div class="preset-card active" data-mode="vector" data-dpi="160" data-size="1.0">
+                <div class="preset-card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    คมชัดสูงสุด
+                </div>
+                <div class="preset-card-desc">รักษา Vector 100% ตัวหนังสือคมกริบ เหมาะกับบิล สลิป สเตทเม้นท์</div>
+            </div>
+            <div class="preset-card" data-mode="balanced" data-dpi="140" data-size="0.8">
+                <div class="preset-card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path></svg>
+                    สมดุล (แนะนำ)
+                </div>
+                <div class="preset-card-desc">บีบอัดภาพความละเอียดสูง เหมาะสำหรับส่งอีเมลหรือใช้งานทั่วไป</div>
+            </div>
+            <div class="preset-card" data-mode="maximum" data-dpi="120" data-size="0.5">
+                <div class="preset-card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                    เล็กที่สุด
+                </div>
+                <div class="preset-card-desc">รีดขนาดไฟล์ให้เล็กที่สุด สำหรับอัปโหลดเว็บที่จำกัดขนาดไฟล์</div>
+            </div>
+            <div class="preset-card" data-mode="custom">
+                <div class="preset-card-title">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                    กำหนดเอง
+                </div>
+                <div class="preset-card-desc">ระบุค่า DPI และขนาดเป้าหมาย MB ด้วยตนเอง</div>
+            </div>
+        </div>
+
+        <!-- Custom Options -->
+        <div class="custom-options" id="customOptions">
+            <div class="input-group">
+                <label for="dpiSelect">DPI ความละเอียดภาพ</label>
+                <select id="dpiSelect" class="input-control">
+                    <option value="120">120 DPI (เล็กสุดที่ยังอ่านออก)</option>
+                    <option value="140">140 DPI (สมดุล)</option>
+                    <option value="160" selected>160 DPI (แนะนำ)</option>
+                    <option value="200">200 DPI (ความละเอียดสูง)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="maxSizeInput">ขนาดเป้าหมาย (MB)</label>
+                <input type="number" id="maxSizeInput" class="input-control" value="1.0" min="0.1" max="50" step="0.1">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="submit-btn" id="compressBtn" disabled>
+            <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <span>เริ่มบีบอัด PDF</span>
+        </button>
+    </div>
+
+    <!-- Processing Card with Real-Time SSE Progress Bar -->
+    <div class="card processing-card" id="processingCard">
+        <div class="spinner"></div>
+        <div class="processing-text" id="processingText">กำลังเริ่มต้นระบบบีบอัดเอกสาร...</div>
+        
+        <div class="progress-container">
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progressBarFill" style="width: 5%;"></div>
+            </div>
+            <div class="progress-stats">
+                <span class="progress-step-msg" id="progressStepMsg">กำลังอัปโหลดไฟล์...</span>
+                <span class="progress-pct" id="progressPct">5%</span>
+            </div>
+        </div>
+
+        <div class="processing-subtext" id="processingSubtext">
+            <svg class="icon icon-xs" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+            ประมวลผลด้วย Dual Ghostscript Multi-threading + In-Memory Chunking
+        </div>
+    </div>
+
+    <!-- Result Card -->
+    <div class="card result-section" id="resultSection">
+        <div class="result-summary-bar">
+            <div class="summary-title">
+                <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span id="summaryTitleText">บีบอัดสำเร็จเรียบร้อย!</span>
+            </div>
+            <div id="statusBadgeContainer"></div>
+        </div>
+
+        <!-- Multi-page Navigator -->
+        <div class="page-nav-bar" id="pageNavBar">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>ตรวจสอบหน้า: </span>
+                <span class="page-indicator" id="pageIndicator">หน้า 1 / 1</span>
+            </div>
+            <div class="page-nav-btns">
+                <button class="nav-btn" id="prevPageBtn" disabled>
+                    <svg class="icon icon-xs" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    หน้าก่อน
+                </button>
+                <button class="nav-btn" id="nextPageBtn" disabled>
+                    หน้าถัดไป
+                    <svg class="icon icon-xs" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Variant Tabs for Preview -->
+        <div class="variant-tabs" id="variantTabs">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Preview Compare -->
+        <div class="preview-container">
+            <div class="preview-box">
+                <div class="preview-header">
+                    <span class="preview-tag before">ก่อนบีบอัด (Original)</span>
+                    <span class="preview-size" id="beforeSizeText">0 MB</span>
+                </div>
+                <div class="preview-img-wrapper" id="beforeImgWrapper">
+                    <img id="beforeImg" src="" alt="ก่อนบีบอัด">
+                    <span class="zoom-hint">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                        คลิกขยายดูตัวหนังสือ
+                    </span>
+                </div>
+            </div>
+            <div class="preview-box">
+                <div class="preview-header">
+                    <span class="preview-tag after" id="afterPreviewTag">หลังบีบอัด (Compressed)</span>
+                    <span class="preview-size" id="afterSizeText">0 MB</span>
+                </div>
+                <div class="preview-img-wrapper" id="afterImgWrapper">
+                    <img id="afterImg" src="" alt="หลังบีบอัด">
+                    <span class="zoom-hint">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                        คลิกขยายดูตัวหนังสือ
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PDF DPI Analyzer Section (Equivalent to APITemplate.io) -->
+        <div class="dpi-analyzer-card" id="dpiAnalyzerCard" style="display: none;">
+            <div class="dpi-card-header" id="dpiCardHeader">
+                <div class="dpi-header-title-group">
+                    <div class="dpi-badge">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        PDF DPI Analyzer
+                    </div>
+                    <div class="dpi-main-title">วิเคราะห์ความละเอียดรูปภาพในเอกสาร (DPI Analyzer)</div>
+                    <div class="dpi-sub-desc">ตรวจสอบความละเอียด DPI ที่แท้จริงบนหน้ากระดาษ ขนาดพิกเซล และความพร้อมสำหรับงานพิมพ์แบบเดียวกับ APITemplate.io</div>
+                </div>
+                <button class="dpi-toggle-btn" id="dpiToggleBtn" type="button">
+                    <span id="dpiToggleText">ย่อรายละเอียด</span>
+                    <svg class="icon icon-sm" id="dpiToggleIcon" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+            </div>
+
+            <div class="dpi-card-body" id="dpiCardBody">
+                <!-- Summary Stats Grid -->
+                <div class="dpi-stats-grid">
+                    <div class="dpi-stat-box highlight">
+                        <div class="dpi-stat-label">เกรดความคมชัดภาพรวม</div>
+                        <div class="dpi-stat-val" id="dpiOverallGrade" style="font-size: 1.15rem;">-</div>
+                        <div class="dpi-stat-hint" id="dpiOverallAssessment">-</div>
+                    </div>
+                    <div class="dpi-stat-box">
+                        <div class="dpi-stat-label">DPI เฉลี่ย (Average DPI)</div>
+                        <div class="dpi-stat-val" id="dpiAvgVal">0 DPI</div>
+                        <div class="dpi-stat-hint" id="dpiMinMaxHint">Min: 0 | Max: 0 DPI</div>
+                    </div>
+                    <div class="dpi-stat-box">
+                        <div class="dpi-stat-label">จำนวนรูปภาพทั้งหมด</div>
+                        <div class="dpi-stat-val" id="dpiTotalImagesVal">0 รูป</div>
+                        <div class="dpi-stat-hint" id="dpiPrintReadyHint">0 รูป Print Ready</div>
+                    </div>
+                    <div class="dpi-stat-box">
+                        <div class="dpi-stat-label">ตัวหนังสือและเส้นสาย</div>
+                        <div class="dpi-stat-val" style="color: var(--success); font-size: 1.15rem;">100% Vector</div>
+                        <div class="dpi-stat-hint">ความละเอียดไม่จำกัด คมชัดสูงสุด</div>
+                    </div>
+                </div>
+
+                <!-- Quality Breakdown Bar Legend -->
+                <div class="dpi-quality-bar-wrap">
+                    <div class="dpi-bar-legend">
+                        <span class="legend-item"><span class="legend-dot print"></span> Print Ready (300+ DPI): <b id="dpiCountPrint" style="color: #10b981;">0</b></span>
+                        <span class="legend-item"><span class="legend-dot standard"></span> Standard (150-299 DPI): <b id="dpiCountStandard" style="color: #2563eb;">0</b></span>
+                        <span class="legend-item"><span class="legend-dot web"></span> Web / Screen (&lt; 150 DPI): <b id="dpiCountWeb" style="color: #f59e0b;">0</b></span>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="dpi-filter-bar">
+                    <div class="dpi-filter-btns">
+                        <button class="dpi-filter-btn active" data-filter="all">ทั้งหมด (<span id="filterCountAll">0</span>)</button>
+                        <button class="dpi-filter-btn" data-filter="print">Print Ready 300+ (<span id="filterCountPrint">0</span>)</button>
+                        <button class="dpi-filter-btn" data-filter="standard">150-299 DPI (<span id="filterCountStandard">0</span>)</button>
+                        <button class="dpi-filter-btn" data-filter="web">&lt; 150 DPI (<span id="filterCountWeb">0</span>)</button>
+                    </div>
+                    <div class="dpi-table-search">
+                        <input type="text" id="dpiSearchInput" placeholder="ค้นหาหน้า หรือ ฟอร์แมต..." class="dpi-search-field">
+                    </div>
+                </div>
+
+                <!-- Detailed Table Container -->
+                <div class="dpi-table-container">
+                    <table class="dpi-table" id="dpiTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 65px;">พรีวิว</th>
+                                <th style="width: 70px;">หน้า</th>
+                                <th>ความละเอียด (DPI)</th>
+                                <th>ขนาดพิกเซล</th>
+                                <th>ขนาดบนกระดาษ</th>
+                                <th>Color Space / รูปแบบ</th>
+                                <th style="text-align: right; width: 110px;">รูปต้นฉบับ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dpiTableBody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="dpiEmptyMsg" class="dpi-empty-msg" style="display: none;">
+                        ไม่พบรูปภาพตามเงื่อนไขการค้นหา
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variant Choices -->
+        <div class="variants-title">
+            <svg class="icon icon-md" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>เลือกระดับไฟล์ที่ต้องการดาวน์โหลด:</span>
+        </div>
+        <div class="variants-list" id="variantsList">
+            <!-- Filled dynamically by JavaScript -->
+        </div>
+
+        <!-- Smart Splitter Card -->
+        <div class="split-card" id="splitCard">
+            <div class="split-header">
+                <div class="split-badge">
+                    <svg class="icon icon-xs" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+                    ทางเลือกแนะนำ: แบ่งไฟล์ตามโควต้า
+                </div>
+                <div class="split-title">แบ่งไฟล์ PDF อัจฉริยะ (Smart PDF Splitter)</div>
+                <div class="split-desc" id="splitDesc">
+                    หากระบบปลายทางจำกัดขนาดไฟล์ เช่น ไม่เกิน 1.0 MB ต่อไฟล์ คุณสามารถสั่งให้ระบบแบ่งเอกสารออกเป็นส่วนๆ โดยอัตโนมัติ ทุกส่วนจะรักษาความคมชัดแบบเวกเตอร์ 100%
+                </div>
+            </div>
+
+            <div class="split-controls">
+                <div class="split-mode-tabs">
+                    <button class="split-mode-btn active" id="splitModeSizeBtn">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                        แบ่งตามขนาดเป้าหมาย (<= MB)
+                    </button>
+                    <button class="split-mode-btn" id="splitModePartsBtn">
+                        <svg class="icon icon-xs" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        แบ่งตามจำนวนส่วนเท่าๆ กัน
+                    </button>
+                </div>
+
+                <div class="split-input-row" id="splitSizeRow">
+                    <label for="splitTargetMbInput">ขนาดสูงสุดต่อ 1 ไฟล์ (MB):</label>
+                    <input type="number" id="splitTargetMbInput" class="split-input" value="1.0" min="0.2" max="20" step="0.1">
+                </div>
+
+                <div class="split-input-row" id="splitPartsRow" style="display: none;">
+                    <label for="splitPartsCountInput">จำนวนส่วนที่ต้องการแบ่ง:</label>
+                    <input type="number" id="splitPartsCountInput" class="split-input" value="4" min="2" max="20" step="1">
+                </div>
+
+                <button class="split-action-btn" id="doSplitBtn">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+                    <span>เริ่มแบ่งไฟล์ทันที</span>
+                </button>
+            </div>
+
+            <!-- Split Results Box -->
+            <div class="split-results-box" id="splitResultsBox" style="display: none;">
+                <div class="split-results-header">
+                    <div class="split-results-title" id="splitResultsTitle">
+                        <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>แบ่งไฟล์สำเร็จเรียบร้อย</span>
+                    </div>
+                    <a href="#" id="downloadAllZipBtn" class="download-zip-btn">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                        <span>ดาวน์โหลดทุกส่วน (ZIP)</span>
+                    </a>
+                </div>
+                <div class="split-parts-list" id="splitPartsList">
+                    <!-- Dynamic parts injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="result-bottom-actions">
+            <button class="reset-action-btn" id="resetBtn">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                บีบอัดไฟล์ใหม่อีกครั้ง
+            </button>
+            <button class="delete-action-btn" id="deleteNowBtn" title="ลบไฟล์ PDF และรูปภาพพรีวิวออกจากเซิร์ฟเวอร์ทันที">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                <span>ลบไฟล์และรูปภาพทันที</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Zoom Modal -->
+<div class="modal" id="zoomModal">
+    <button class="modal-close" id="modalClose">
+        <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="modal-content">
+        <img id="modalImg" src="" alt="ขยายตัวอย่าง">
+    </div>
+</div>
+
+<script>
+    // Light / Dark Mode Toggle Management
+    const modeToggleBtn = document.getElementById('modeToggleBtn');
+    const modeIcon = document.getElementById('modeIcon');
+    const modeText = document.getElementById('modeText');
+
+    const SUN_ICON = '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+    const MOON_ICON = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
+    function setMode(mode) {
+        if (mode === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            modeIcon.innerHTML = SUN_ICON;
+            modeText.textContent = 'โหมดสว่าง';
+            localStorage.setItem('pdf_theme_mode', 'light');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            modeIcon.innerHTML = MOON_ICON;
+            modeText.textContent = 'โหมดมืด';
+            localStorage.setItem('pdf_theme_mode', 'dark');
+        }
+    }
+
+    modeToggleBtn.addEventListener('click', () => {
+        const currentMode = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        setMode(currentMode === 'light' ? 'dark' : 'light');
+    });
+
+    const savedMode = localStorage.getItem('pdf_theme_mode') || 'dark';
+    setMode(savedMode);
+
+    // Theme Color Management (Customizable solid colors with persistence)
+    const themeSwatches = document.querySelectorAll('.color-swatch');
+    const customColorPicker = document.getElementById('customColorPicker');
+
+    function applyThemeColor(primaryColor, hoverColor) {
+        if (!hoverColor) {
+            hoverColor = adjustColorBrightness(primaryColor, -15);
+        }
+        document.documentElement.style.setProperty('--accent-primary', primaryColor);
+        document.documentElement.style.setProperty('--accent-hover', hoverColor);
+        
+        const rgb = hexToRgb(primaryColor);
+        if (rgb) {
+            document.documentElement.style.setProperty('--accent-subtle', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.12)`);
+            document.documentElement.style.setProperty('--accent-border', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35)`);
+        }
+
+        localStorage.setItem('pdf_theme_color', primaryColor);
+        localStorage.setItem('pdf_theme_hover', hoverColor);
+
+        themeSwatches.forEach(sw => {
+            if (sw.dataset.color.toLowerCase() === primaryColor.toLowerCase()) {
+                sw.classList.add('active');
+            } else {
+                sw.classList.remove('active');
+            }
+        });
+        if (customColorPicker) customColorPicker.value = primaryColor;
+    }
+
+    function hexToRgb(hex) {
+        let c = hex.replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const num = parseInt(c, 16);
+        return isNaN(num) ? null : { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    function adjustColorBrightness(hex, percent) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return hex;
+        const r = Math.max(0, Math.min(255, Math.floor(rgb.r * (100 + percent) / 100)));
+        const g = Math.max(0, Math.min(255, Math.floor(rgb.g * (100 + percent) / 100)));
+        const b = Math.max(0, Math.min(255, Math.floor(rgb.b * (100 + percent) / 100)));
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    }
+
+    themeSwatches.forEach(sw => {
+        sw.addEventListener('click', () => {
+            applyThemeColor(sw.dataset.color, sw.dataset.hover);
+        });
+    });
+
+    if (customColorPicker) {
+        customColorPicker.addEventListener('input', (e) => {
+            applyThemeColor(e.target.value);
+        });
+    }
+
+    // Load saved color theme on load
+    const savedColor = localStorage.getItem('pdf_theme_color');
+    const savedHover = localStorage.getItem('pdf_theme_hover');
+    if (savedColor) {
+        applyThemeColor(savedColor, savedHover);
+    }
+
+    // Unified Icon SVGs for dynamic injection
+    const ICONS = {
+        check: '<svg class="icon icon-md" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+        alert: '<svg class="icon icon-md" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+        download: '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+        star: '<svg class="icon icon-xs" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+        scissors: '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>',
+        spinner: '<svg class="icon icon-sm spin" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>'
+    };
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileSelected = document.getElementById('fileSelected');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    const compressBtn = document.getElementById('compressBtn');
+    const uploadCard = document.getElementById('uploadCard');
+    const processingCard = document.getElementById('processingCard');
+    const processingText = document.getElementById('processingText');
+    const progressBarFill = document.getElementById('progressBarFill');
+    const progressPct = document.getElementById('progressPct');
+    const progressStepMsg = document.getElementById('progressStepMsg');
+    const resultSection = document.getElementById('resultSection');
+    const customOptions = document.getElementById('customOptions');
+    const dpiSelect = document.getElementById('dpiSelect');
+    const maxSizeInput = document.getElementById('maxSizeInput');
+    const presetCards = document.querySelectorAll('.preset-card');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Page navigation
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const variantTabs = document.getElementById('variantTabs');
+
+    // Smart Splitter
+    const splitCard = document.getElementById('splitCard');
+    const splitDesc = document.getElementById('splitDesc');
+    const splitModeSizeBtn = document.getElementById('splitModeSizeBtn');
+    const splitModePartsBtn = document.getElementById('splitModePartsBtn');
+    const splitSizeRow = document.getElementById('splitSizeRow');
+    const splitPartsRow = document.getElementById('splitPartsRow');
+    const splitTargetMbInput = document.getElementById('splitTargetMbInput');
+    const splitPartsCountInput = document.getElementById('splitPartsCountInput');
+    const doSplitBtn = document.getElementById('doSplitBtn');
+    const splitResultsBox = document.getElementById('splitResultsBox');
+    const splitResultsTitle = document.getElementById('splitResultsTitle');
+    const splitPartsList = document.getElementById('splitPartsList');
+    const downloadAllZipBtn = document.getElementById('downloadAllZipBtn');
+
+    // Zoom modal
+    const zoomModal = document.getElementById('zoomModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalClose = document.getElementById('modalClose');
+
+    let selectedFile = null;
+    let selectedMode = 'vector';
+    let currentResult = null;
+    let currentPage = 0;
+    let currentActiveVariantId = 'vector';
+    let currentSplitMode = 'size';
+
+    // Preset Selection
+    presetCards.forEach(card => {
+        card.addEventListener('click', () => {
+            presetCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedMode = card.dataset.mode;
+
+            if (selectedMode === 'custom') {
+                customOptions.classList.add('active');
+            } else {
+                customOptions.classList.remove('active');
+                if (card.dataset.dpi) dpiSelect.value = card.dataset.dpi;
+                if (card.dataset.size) maxSizeInput.value = card.dataset.size;
+            }
+        });
+    });
+
+    // File selection
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === 'application/pdf') {
+            setFile(e.dataTransfer.files[0]);
+        }
+    });
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) setFile(fileInput.files[0]);
+    });
+
+    function setFile(file) {
+        selectedFile = file;
+        fileName.textContent = file.name;
+        fileSize.textContent = formatBytes(file.size);
+        fileSelected.classList.add('active');
+        dropzone.style.display = 'none';
+        compressBtn.disabled = false;
+    }
+
+    removeFileBtn.addEventListener('click', () => {
+        selectedFile = null;
+        fileInput.value = '';
+        fileSelected.classList.remove('active');
+        dropzone.style.display = 'block';
+        compressBtn.disabled = true;
+    });
+
+    function formatBytes(bytes) {
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    // Submit Action with Real-Time SSE
+    compressBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        uploadCard.style.display = 'none';
+        processingCard.classList.add('active');
+        resultSection.classList.remove('active');
+        splitResultsBox.style.display = 'none';
+
+        // Reset progress visual state
+        progressBarFill.style.width = '6%';
+        progressPct.textContent = '6%';
+        processingText.textContent = "กำลังเริ่มต้นระบบบีบอัดเอกสาร...";
+        progressStepMsg.textContent = "กำลังอัปโหลดไฟล์สู่เซิร์ฟเวอร์...";
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('mode', selectedMode);
+        formData.append('dpi', dpiSelect.value);
+        formData.append('max_size', maxSizeInput.value);
+
+        try {
+            const initRes = await fetch('/upload_async', { method: 'POST', body: formData });
+            const initData = await initRes.json();
+
+            if (!initData.success) {
+                alert("เกิดข้อผิดพลาดในการอัปโหลด: " + (initData.error || "ไม่สามารถอัปโหลดได้"));
+                processingCard.classList.remove('active');
+                uploadCard.style.display = 'block';
+                return;
+            }
+
+            const taskId = initData.task_id;
+            let pollTimer = null;
+
+            function handleProgressUpdate(data, onDone) {
+                if (data.error) {
+                    if (onDone) onDone();
+                    alert("เกิดข้อผิดพลาดในการประมวลผล: " + data.error);
+                    processingCard.classList.remove('active');
+                    uploadCard.style.display = 'block';
+                    return;
+                }
+
+                if (data.percent !== undefined) {
+                    const pct = Math.max(6, Math.min(100, data.percent));
+                    progressBarFill.style.width = pct + '%';
+                    progressPct.textContent = pct + '%';
+                }
+
+                if (data.step) {
+                    processingText.textContent = data.step;
+                    progressStepMsg.textContent = data.step;
+                }
+
+                if (data.done) {
+                    if (onDone) onDone();
+                    progressBarFill.style.width = '100%';
+                    progressPct.textContent = '100%';
+
+                    setTimeout(() => {
+                        processingCard.classList.remove('active');
+                        if (data.result && data.result.success) {
+                            currentResult = data.result;
+                            currentPage = 0;
+                            currentActiveVariantId = data.result.best_variant ? data.result.best_variant.id : 'vector';
+                            showResults(data.result);
+                        } else {
+                            alert("การประมวลผลล้มเหลว: " + (data.result ? data.result.error : 'ไม่ทราบสาเหตุ'));
+                            uploadCard.style.display = 'block';
+                        }
+                    }, 500);
+                }
+            }
+
+            function startPolling() {
+                if (pollTimer) return;
+                pollTimer = setInterval(async () => {
+                    try {
+                        const sRes = await fetch('/status/' + taskId);
+                        const sData = await sRes.json();
+                        handleProgressUpdate(sData, () => clearInterval(pollTimer));
+                    } catch (err) {
+                        console.error("Poll error", err);
+                    }
+                }, 800);
+            }
+
+            const evtSource = new EventSource('/stream/' + taskId);
+
+            evtSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleProgressUpdate(data, () => evtSource.close());
+                } catch (e) {
+                    console.error("SSE parse error", e);
+                }
+            };
+
+            evtSource.onerror = (e) => {
+                console.warn("SSE connection interrupted, falling back to polling...", e);
+                evtSource.close();
+                startPolling();
+            };
+
+        } catch (err) {
+            processingCard.classList.remove('active');
+            uploadCard.style.display = 'block';
+            alert("การเชื่อมต่อขัดข้อง: " + err.message);
+        }
+    });
+
+    function showResults(data) {
+        resultSection.classList.add('active');
+
+        document.getElementById('summaryTitleText').textContent = `บีบอัดสำเร็จ! เอกสารทั้งหมด ${data.total_pages} หน้า`;
+        document.getElementById('beforeSizeText').textContent = data.input_size_mb + ' MB';
+        updateAfterStats();
+
+        updatePageNav();
+
+        // Render Variant Tabs for Preview
+        variantTabs.innerHTML = '';
+        if (data.variants && data.variants.length > 0) {
+            data.variants.forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = `vtab-btn ${v.id === currentActiveVariantId ? 'active' : ''}`;
+                btn.textContent = `${v.name.split(' ')[0]} ${v.id.toUpperCase()}`;
+                btn.title = v.name;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.vtab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentActiveVariantId = v.id;
+                    updateAfterStats();
+                    loadPagePreview();
+                });
+                variantTabs.appendChild(btn);
+            });
+        }
+
+        loadPagePreview();
+
+        // Render DPI Analyzer (APITemplate.io Equivalent)
+        if (data.dpi_analysis) {
+            renderDpiAnalyzer(data.dpi_analysis, data.file_id);
+        } else {
+            document.getElementById('dpiAnalyzerCard').style.display = 'none';
+        }
+
+        // Render Variant Cards (Restoring clean v5 download standard)
+        const variantsList = document.getElementById('variantsList');
+        variantsList.innerHTML = '';
+
+        if (data.variants && data.variants.length > 0) {
+            data.variants.forEach(v => {
+                const isBest = (data.best_variant && data.best_variant.id === v.id);
+                const card = document.createElement('div');
+                card.className = `variant-card ${isBest ? 'recommended' : ''}`;
+                card.innerHTML = `
+                    <div class="variant-details">
+                        <div class="variant-name-row">
+                            <span class="variant-name">${v.name}</span>
+                            <span class="variant-badge">${v.badge}</span>
+                            ${isBest ? `<span style="color: var(--accent-primary); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${ICONS.star} ตรงตามเงื่อนไขที่เลือก</span>` : ''}
+                        </div>
+                        <div class="variant-desc">${v.desc}</div>
+                    </div>
+                    <div class="variant-actions">
+                        <div class="variant-size-stat">
+                            <div class="variant-size-mb">${v.size_mb} MB</div>
+                            <div class="variant-reduction">ลดลง ${v.reduction_percent}%</div>
+                        </div>
+                        <a href="/download/${data.file_id}/${v.id}?name=${encodeURIComponent(data.original_name)}" 
+                           class="download-action-btn ${isBest ? 'primary' : ''}">
+                            ${ICONS.download}
+                            <span>ดาวน์โหลด PDF</span>
+                        </a>
+                    </div>
+                `;
+                variantsList.appendChild(card);
+            });
+        }
+
+        // Status badge
+        const badgeContainer = document.getElementById('statusBadgeContainer');
+        if (data.size_ok) {
+            badgeContainer.innerHTML = `<span style="color: var(--success); font-weight: 600; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px;">${ICONS.check} ขนาดตรงตามเป้าหมาย (หน้าครบ ${data.total_pages} หน้า)</span>`;
+            splitDesc.textContent = `เอกสารมี ${data.total_pages} หน้า คุณสามารถแบ่งไฟล์ออกเป็นส่วนๆ ตามความต้องการใช้งานได้`;
+        } else {
+            badgeContainer.innerHTML = `<span style="color: var(--warning); font-weight: 600; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px;">${ICONS.alert} ${data.warning || 'ขนาดไฟล์ลดลงแล้ว'} (หน้าครบ ${data.total_pages} หน้า)</span>`;
+            splitDesc.textContent = `เนื่องจากเอกสารมีถึง ${data.total_pages} หน้า ขนาดผลลัพธ์ (${data.output_size_mb} MB) จึงเกินเป้าหมาย ${data.target_max_size_mb} MB คุณสามารถสั่งให้ระบบ "หั่นแบ่งไฟล์" เพื่อให้แต่ละไฟล์มีขนาดไม่เกิน ${data.target_max_size_mb} MB และคงความคมชัดแบบเวกเตอร์ 100% ได้ทันทีด้านล่างนี้`;
+        }
+
+        splitTargetMbInput.value = data.target_max_size_mb || 1.0;
+        splitPartsCountInput.value = Math.max(2, Math.ceil(data.output_size_mb / (data.target_max_size_mb || 1.0)));
+    }
+
+    function updateAfterStats() {
+        if (!currentResult) return;
+        const currentVar = currentResult.variants.find(v => v.id === currentActiveVariantId) || currentResult.best_variant;
+        if (currentVar) {
+            document.getElementById('afterSizeText').textContent = `${currentVar.size_mb} MB (ลด ${currentVar.reduction_percent}%)`;
+            document.getElementById('afterPreviewTag').textContent = `หลังบีบอัด (${currentVar.badge})`;
+        }
+    }
+
+    function updatePageNav() {
+        if (!currentResult) return;
+        const total = currentResult.total_pages || 1;
+        pageIndicator.textContent = `หน้า ${currentPage + 1} / ${total}`;
+        prevPageBtn.disabled = (currentPage <= 0);
+        nextPageBtn.disabled = (currentPage >= total - 1);
+    }
+
+    function loadPagePreview() {
+        if (!currentResult) return;
+        const fileId = currentResult.file_id;
+        const t = Date.now();
+        document.getElementById('beforeImg').src = `/preview/${fileId}/before/${currentPage}?t=${t}`;
+        document.getElementById('afterImg').src = `/preview/${fileId}/${currentActiveVariantId}/${currentPage}?t=${t}`;
+    }
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            updatePageNav();
+            loadPagePreview();
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        if (currentResult && currentPage < currentResult.total_pages - 1) {
+            currentPage++;
+            updatePageNav();
+            loadPagePreview();
+        }
+    });
+
+    // Smart Splitter Interactivity
+    splitModeSizeBtn.addEventListener('click', () => {
+        splitModeSizeBtn.classList.add('active');
+        splitModePartsBtn.classList.remove('active');
+        splitSizeRow.style.display = 'flex';
+        splitPartsRow.style.display = 'none';
+        currentSplitMode = 'size';
+    });
+
+    splitModePartsBtn.addEventListener('click', () => {
+        splitModePartsBtn.classList.add('active');
+        splitModeSizeBtn.classList.remove('active');
+        splitSizeRow.style.display = 'none';
+        splitPartsRow.style.display = 'flex';
+        currentSplitMode = 'parts';
+    });
+
+    doSplitBtn.addEventListener('click', async () => {
+        if (!currentResult) return;
+
+        doSplitBtn.disabled = true;
+        doSplitBtn.innerHTML = `${ICONS.spinner} <span>กำลังแบ่งไฟล์...</span>`;
+
+        const formData = new FormData();
+        formData.append('variant_id', currentActiveVariantId);
+        formData.append('split_mode', currentSplitMode);
+        formData.append('max_size_mb', splitTargetMbInput.value);
+        formData.append('parts_count', splitPartsCountInput.value);
+
+        try {
+            const res = await fetch(`/split/${currentResult.file_id}`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            doSplitBtn.disabled = false;
+            doSplitBtn.innerHTML = `${ICONS.scissors} <span>เริ่มแบ่งไฟล์ทันที</span>`;
+
+            if (data.success) {
+                renderSplitResults(data);
+            } else {
+                alert('เกิดข้อผิดพลาดในการแบ่งไฟล์: ' + data.error);
+            }
+        } catch (err) {
+            doSplitBtn.disabled = false;
+            doSplitBtn.innerHTML = `${ICONS.scissors} <span>เริ่มแบ่งไฟล์ทันที</span>`;
+            alert('การเชื่อมต่อขัดข้อง: ' + err.message);
+        }
+    });
+
+    function renderSplitResults(data) {
+        splitResultsBox.style.display = 'block';
+        splitResultsTitle.innerHTML = `${ICONS.check} <span>แบ่งออกเป็น ${data.total_parts} ไฟล์สำเร็จ (คงความคมชัด 100%)</span>`;
+        
+        downloadAllZipBtn.href = data.zip_url;
+        downloadAllZipBtn.removeAttribute('download');
+        downloadAllZipBtn.removeAttribute('type');
+
+        splitPartsList.innerHTML = '';
+        data.parts.forEach(p => {
+            const partCard = document.createElement('div');
+            partCard.className = 'split-part-card';
+            partCard.innerHTML = `
+                <div>
+                    <div class="part-info-num">Part ${p.part_num}</div>
+                    <div class="part-info-pages">หน้า ${p.from_page} – ${p.to_page} (${p.pages_count} หน้า)</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="part-info-size">${p.size_mb} MB</div>
+                    <a href="${p.download_url}" class="part-dl-btn">
+                        ${ICONS.download}
+                        <span>โหลดส่วนนี้ (PDF)</span>
+                    </a>
+                </div>
+            `;
+            splitPartsList.appendChild(partCard);
+        });
+
+        splitResultsBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // DPI Analyzer Controller (APITemplate.io Equivalent Standard)
+    // ============================================================
+    const dpiAnalyzerCard = document.getElementById('dpiAnalyzerCard');
+    const dpiCardHeader = document.getElementById('dpiCardHeader');
+    const dpiToggleBtn = document.getElementById('dpiToggleBtn');
+    const dpiToggleText = document.getElementById('dpiToggleText');
+    const dpiToggleIcon = document.getElementById('dpiToggleIcon');
+    const dpiCardBody = document.getElementById('dpiCardBody');
+    const dpiOverallGrade = document.getElementById('dpiOverallGrade');
+    const dpiOverallAssessment = document.getElementById('dpiOverallAssessment');
+    const dpiAvgVal = document.getElementById('dpiAvgVal');
+    const dpiMinMaxHint = document.getElementById('dpiMinMaxHint');
+    const dpiTotalImagesVal = document.getElementById('dpiTotalImagesVal');
+    const dpiPrintReadyHint = document.getElementById('dpiPrintReadyHint');
+    const dpiCountPrint = document.getElementById('dpiCountPrint');
+    const dpiCountStandard = document.getElementById('dpiCountStandard');
+    const dpiCountWeb = document.getElementById('dpiCountWeb');
+    const filterCountAll = document.getElementById('filterCountAll');
+    const filterCountPrint = document.getElementById('filterCountPrint');
+    const filterCountStandard = document.getElementById('filterCountStandard');
+    const filterCountWeb = document.getElementById('filterCountWeb');
+    const dpiSearchInput = document.getElementById('dpiSearchInput');
+    const dpiTableBody = document.getElementById('dpiTableBody');
+    const dpiEmptyMsg = document.getElementById('dpiEmptyMsg');
+    const dpiFilterBtns = document.querySelectorAll('.dpi-filter-btn');
+
+    let currentDpiImages = [];
+    let currentDpiFilter = 'all';
+    let currentDpiFileId = '';
+
+    function renderDpiAnalyzer(dpiAnalysis, fileId) {
+        if (!dpiAnalysis || !dpiAnalysis.summary) {
+            dpiAnalyzerCard.style.display = 'none';
+            return;
+        }
+
+        currentDpiFileId = fileId;
+        const summary = dpiAnalysis.summary;
+        currentDpiImages = dpiAnalysis.images || [];
+
+        dpiAnalyzerCard.style.display = 'block';
+
+        // Fill Stats
+        dpiOverallGrade.textContent = summary.overall_grade || 'N/A';
+        dpiOverallGrade.style.color = summary.overall_color || 'var(--text-primary)';
+        dpiOverallAssessment.textContent = summary.overall_assessment || '-';
+
+        dpiAvgVal.textContent = (summary.avg_dpi || 0) + ' DPI';
+        dpiMinMaxHint.textContent = `Min: ${summary.min_dpi || 0} | Max: ${summary.max_dpi || 0} DPI`;
+
+        dpiTotalImagesVal.textContent = (summary.total_images || 0) + ' รูป';
+        dpiPrintReadyHint.textContent = `${summary.print_count || 0} รูป Print Ready (${summary.unique_images || 0} ภาพไม่ซ้ำ)`;
+
+        dpiCountPrint.textContent = summary.print_count || 0;
+        dpiCountStandard.textContent = summary.standard_count || 0;
+        dpiCountWeb.textContent = summary.web_count || 0;
+
+        filterCountAll.textContent = summary.total_images || 0;
+        filterCountPrint.textContent = summary.print_count || 0;
+        filterCountStandard.textContent = summary.standard_count || 0;
+        filterCountWeb.textContent = summary.web_count || 0;
+
+        currentDpiFilter = 'all';
+        dpiFilterBtns.forEach(b => {
+            if (b.dataset.filter === 'all') b.classList.add('active');
+            else b.classList.remove('active');
+        });
+        if (dpiSearchInput) dpiSearchInput.value = '';
+
+        filterAndRenderDpiTable();
+    }
+
+    function filterAndRenderDpiTable() {
+        const query = (dpiSearchInput ? dpiSearchInput.value : '').toLowerCase().trim();
+        dpiTableBody.innerHTML = '';
+
+        const filtered = currentDpiImages.filter(img => {
+            if (currentDpiFilter !== 'all' && img.quality_tier !== currentDpiFilter) {
+                return false;
+            }
+            if (query) {
+                const matchPage = `หน้า ${img.page}`.toLowerCase().includes(query) || String(img.page).includes(query);
+                const matchFormat = (img.format || '').toLowerCase().includes(query);
+                const matchCs = (img.colorspace || '').toLowerCase().includes(query);
+                const matchDpi = String(img.effective_dpi).includes(query);
+                if (!matchPage && !matchFormat && !matchCs && !matchDpi) return false;
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            dpiEmptyMsg.style.display = 'block';
+            return;
+        }
+        dpiEmptyMsg.style.display = 'none';
+
+        filtered.forEach(img => {
+            const tr = document.createElement('tr');
+            const thumbSrc = img.thumb_url || `/extract_image/${currentDpiFileId}/${img.xref}`;
+            tr.innerHTML = `
+                <td>
+                    <img src="${thumbSrc}" class="dpi-img-thumb" alt="P${img.page}" title="คลิกดูภาพขยาย" onclick="openZoom('${thumbSrc}')" onerror="this.style.opacity='0.3'">
+                </td>
+                <td>
+                    <span style="font-weight: 600;">หน้า ${img.page}</span>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span class="dpi-val-pill ${img.quality_tier}">
+                            ${img.effective_dpi} DPI
+                        </span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">${img.dpi_x} × ${img.dpi_y} DPI</span>
+                    </div>
+                </td>
+                <td>
+                    <span style="font-family: 'Inter', monospace; font-weight: 600;">${img.width} × ${img.height}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);"> px</span>
+                </td>
+                <td>
+                    <span style="font-family: 'Inter', monospace;">${img.disp_w_mm} × ${img.disp_h_mm}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);"> มม. (${img.disp_w_in}" × ${img.disp_h_in}")</span>
+                </td>
+                <td>
+                    <span style="font-weight: 500;">${img.colorspace}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);"> (${img.format}, ${img.size_kb} KB)</span>
+                </td>
+                <td style="text-align: right;">
+                    <a href="/extract_image/${currentDpiFileId}/${img.xref}?download=1" 
+                       class="dpi-img-dl-btn" 
+                       title="ดาวน์โหลดรูปภาพเฉพาะนี้">
+                        ${ICONS.download}
+                        <span>โหลดรูป</span>
+                    </a>
+                </td>
+            `;
+            dpiTableBody.appendChild(tr);
+        });
+    }
+
+    // DPI Filter Buttons
+    dpiFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            dpiFilterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentDpiFilter = btn.dataset.filter;
+            filterAndRenderDpiTable();
+        });
+    });
+
+    if (dpiSearchInput) {
+        dpiSearchInput.addEventListener('input', () => {
+            filterAndRenderDpiTable();
+        });
+    }
+
+    // Toggle Collapsible DPI Card
+    function toggleDpiCard() {
+        const isCollapsed = dpiCardBody.classList.toggle('collapsed');
+        dpiToggleText.textContent = isCollapsed ? 'แสดงรายละเอียด' : 'ย่อรายละเอียด';
+        dpiToggleIcon.innerHTML = isCollapsed 
+            ? '<polyline points="6 9 12 15 18 9"></polyline>'
+            : '<polyline points="18 15 12 9 6 15"></polyline>';
+    }
+
+    if (dpiToggleBtn) dpiToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDpiCard(); });
+    if (dpiCardHeader) dpiCardHeader.addEventListener('click', toggleDpiCard);
+
+    function openZoom(src) {
+        modalImg.src = src;
+        zoomModal.classList.add('active');
+    }
+
+    // Zoom Preview Modal
+    document.getElementById('beforeImgWrapper').addEventListener('click', () => {
+        openZoom(document.getElementById('beforeImg').src);
+    });
+    document.getElementById('afterImgWrapper').addEventListener('click', () => {
+        openZoom(document.getElementById('afterImg').src);
+    });
+    modalClose.addEventListener('click', () => zoomModal.classList.remove('active'));
+    zoomModal.addEventListener('click', (e) => {
+        if (e.target === zoomModal) zoomModal.classList.remove('active');
+    });
+
+    // Toast Notification Helper
+    const toastNotification = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimer = null;
+
+    function showToast(msg, duration = 3000) {
+        if (!toastNotification) return;
+        toastMsg.textContent = msg;
+        toastNotification.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toastNotification.classList.remove('show');
+        }, duration);
+    }
+
+    // Server-side cleanup helper
+    function cleanupActiveFile(fileId, sync = false) {
+        if (!fileId) return;
+        try {
+            if (sync && navigator.sendBeacon) {
+                navigator.sendBeacon(`/delete/${fileId}`);
+            } else {
+                fetch(`/delete/${fileId}`, { method: 'POST', keepalive: true }).catch(() => {});
+            }
+        } catch (e) {}
+    }
+
+    // Reset Action (Clean up files & preview images on server)
+    resetBtn.addEventListener('click', () => {
+        if (currentResult && currentResult.file_id) {
+            cleanupActiveFile(currentResult.file_id);
+            currentResult = null;
+        }
+        resultSection.classList.remove('active');
+        uploadCard.style.display = 'block';
+        removeFileBtn.click();
+    });
+
+    // Delete Immediately Action
+    const deleteNowBtn = document.getElementById('deleteNowBtn');
+    if (deleteNowBtn) {
+        deleteNowBtn.addEventListener('click', async () => {
+            if (!currentResult || !currentResult.file_id) return;
+            if (!confirm('คุณต้องการลบไฟล์ PDF และรูปภาพพรีวิวทั้งหมดออกจากเซิร์ฟเวอร์ทันทีใช่หรือไม่?')) return;
+
+            const fid = currentResult.file_id;
+            deleteNowBtn.disabled = true;
+            try {
+                const res = await fetch(`/delete/${fid}`, { method: 'POST' });
+                const data = await res.json();
+                const freedMb = data.freed_mb ? ` (คืนพื้นที่ ${data.freed_mb} MB)` : '';
+                showToast(`ลบไฟล์และรูปภาพพรีวิวเรียบร้อยแล้ว${freedMb}`);
+            } catch (e) {
+                showToast('ลบไฟล์ออกจากเซิร์ฟเวอร์เรียบร้อยแล้ว');
+            }
+
+            currentResult = null;
+            setTimeout(() => {
+                resultSection.classList.remove('active');
+                uploadCard.style.display = 'block';
+                removeFileBtn.click();
+                deleteNowBtn.disabled = false;
+            }, 1000);
+        });
+    }
+
+    // Clean up when user unloads or leaves page
+    window.addEventListener('beforeunload', () => {
+        if (currentResult && currentResult.file_id) {
+            cleanupActiveFile(currentResult.file_id, true);
+        }
+    });
+
+    window.addEventListener('pagehide', () => {
+        if (currentResult && currentResult.file_id) {
+            cleanupActiveFile(currentResult.file_id, true);
+        }
+    });
+</script>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toastNotification">
+    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <span id="toastMsg">ลบไฟล์เรียบร้อยแล้ว</span>
+</div>
+</body>
+</html>
