@@ -1575,52 +1575,68 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
 
-        /* Zoom Modal */
+        /* Universal Modal System: Zero Data-loss Centering & No Horizontal Scroll */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
             background: var(--modal-bg);
             backdrop-filter: blur(10px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
+            z-index: 1000;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px 12px;
+            box-sizing: border-box;
         }
-        .modal.active { display: flex; }
+        .modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
         .modal-content {
-            max-width: 90vw;
-            max-height: 90vh;
-            background: #ffffff;
+            margin: auto;
+            width: 100%;
+            max-width: 640px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius-md);
-            overflow: auto;
+            padding: 24px 20px;
+            position: relative;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            box-sizing: border-box;
+            overflow-x: hidden !important;
+            overflow-y: visible;
         }
         .modal-content img {
             display: block;
             max-width: 100%;
         }
         .modal-close {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            width: 44px;
-            height: 44px;
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.25);
             color: #ffffff;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            z-index: 1010;
         }
         .modal-close:hover {
             background: var(--error);
             border-color: var(--error);
+            color: #ffffff;
+            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -4038,6 +4054,9 @@
         @media (max-width: 768px) {
             .container {
                 padding: 12px 10px 48px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .header {
                 margin-bottom: 16px;
@@ -4053,7 +4072,8 @@
             /* Top Navigation Bar: Centered & Balanced */
             .top-nav-bar {
                 justify-content: center;
-                margin-bottom: 16px;
+                margin-bottom: 14px;
+                gap: 8px;
             }
             .top-controls-group {
                 width: 100%;
@@ -4066,42 +4086,44 @@
                 margin-top: 4px;
             }
 
-            /* Workspace Nav Tabs: Modern Mobile App Style */
+            /* Workspace Nav Tabs: 5-Column Clean App Bar (No Awkward 3-row Wrapping) */
             .workspace-nav-tabs {
-                display: flex !important;
-                overflow-x: auto !important;
-                -webkit-overflow-scrolling: touch;
-                scroll-snap-type: x mandatory;
-                scrollbar-width: none;
-                padding: 6px !important;
-                gap: 6px !important;
-                margin: 10px 0 16px 0 !important;
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 4px !important;
+                padding: 6px 3px !important;
+                margin: 8px 0 16px 0 !important;
                 border-radius: var(--radius-md) !important;
-                justify-content: flex-start !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
-            .workspace-nav-tabs::-webkit-scrollbar { display: none; }
             .ws-tab-btn {
-                flex: 0 0 auto !important;
-                min-width: 96px !important;
-                scroll-snap-align: start;
-                padding: 9px 12px !important;
-                font-size: 0.82rem !important;
-                white-space: nowrap !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                padding: 8px 2px !important;
+                flex-direction: column !important;
+                gap: 3px !important;
                 border-radius: var(--radius-sm) !important;
-                display: inline-flex !important;
+                display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 6px !important;
-            }
-            .ws-tab-btn span {
-                white-space: nowrap !important;
-                overflow: visible !important;
-                text-overflow: clip !important;
+                box-sizing: border-box !important;
+                text-align: center !important;
             }
             .ws-tab-btn svg {
                 flex-shrink: 0 !important;
-                width: 16px !important;
-                height: 16px !important;
+                width: 18px !important;
+                height: 18px !important;
+            }
+            .ws-tab-btn span {
+                font-size: 0.68rem !important;
+                line-height: 1.2 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 100% !important;
+                text-align: center !important;
             }
 
             /* Tasks Sub-view Pills */
@@ -4111,88 +4133,193 @@
                 gap: 8px;
             }
             .view-switch-pills {
-                display: flex;
-                width: 100%;
-                flex-wrap: wrap;
-                gap: 4px;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                width: 100% !important;
+                gap: 4px !important;
+                padding: 4px !important;
+                box-sizing: border-box !important;
             }
             .view-switch-btn {
-                flex: 1 1 calc(50% - 4px);
-                min-width: 110px;
-                padding: 8px 8px;
-                font-size: 0.8rem;
-                justify-content: center;
-                text-align: center;
+                width: 100% !important;
+                min-width: 0 !important;
+                padding: 9px 8px !important;
+                font-size: 0.82rem !important;
+                justify-content: center !important;
+                text-align: center !important;
+                box-sizing: border-box !important;
             }
 
             /* PDF Suite Sub-tabs */
             .pdf-sub-switch-btn {
-                flex: 1 1 calc(33.33% - 4px);
-                font-size: 0.76rem;
-                padding: 7px 6px;
+                flex: 1 1 calc(50% - 4px);
+                font-size: 0.78rem;
+                padding: 8px 6px;
             }
 
-            /* Date Navigator Bar on Mobile */
+            /* Date Navigator Bar on Mobile: 100% Contained & No Overflow */
             .date-nav-card {
-                padding: 10px 12px;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
+                padding: 12px 14px !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             .date-nav-controls {
-                display: grid;
-                grid-template-columns: 1fr 1.2fr 1fr;
-                gap: 6px;
-                width: 100%;
+                display: grid !important;
+                grid-template-columns: 1fr 1.1fr 1fr !important;
+                gap: 6px !important;
+                width: 100% !important;
             }
             .date-nav-btn {
-                padding: 8px 6px;
-                font-size: 0.82rem;
-                justify-content: center;
+                padding: 8px 6px !important;
+                font-size: 0.82rem !important;
+                justify-content: center !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             .date-text-display {
-                text-align: center;
-                font-size: 0.95rem;
-                font-weight: 700;
-                padding: 4px 0;
+                text-align: center !important;
+                font-size: 0.95rem !important;
+                font-weight: 700 !important;
+                padding: 2px 0 !important;
+                width: 100% !important;
             }
             .date-picker-wrap {
-                width: 100%;
-                flex-direction: column !important;
-                gap: 8px !important;
-            }
-            .date-picker-wrap input, .date-picker-wrap select {
                 width: 100% !important;
-                box-sizing: border-box;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+                box-sizing: border-box !important;
+            }
+            #adminTaskUserFilterWrap {
+                width: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                box-sizing: border-box !important;
+            }
+            #adminTaskUserFilterWrap[style*="display: none"] {
+                display: none !important;
+            }
+            #adminTaskUserFilterWrap span {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                font-size: 0.82rem !important;
+                font-weight: 600 !important;
+            }
+            #adminTaskUserSelect {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                text-overflow: ellipsis !important;
+                overflow: hidden !important;
+            }
+            #datePickerInput {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
             }
 
-            /* Task Input Form on Mobile */
-            .task-add-main-row {
-                flex-direction: column;
-                gap: 8px;
+            /* Daily Progress Card & Export on Mobile */
+            .task-progress-card {
+                padding: 14px 16px !important;
+                box-sizing: border-box !important;
             }
-            .task-input-title {
+            .progress-header-row {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .progress-header-row > div:last-child {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
                 width: 100% !important;
             }
+            .quick-export-btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 9px 10px !important;
+                font-size: 0.82rem !important;
+                box-sizing: border-box !important;
+            }
+            .progress-stats-row {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            .stat-badge-group {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 10px !important;
+            }
+
+            /* Quick Task Input Form on Mobile: Clean Stack & 2x2 Meta Grid */
+            .task-input-card {
+                padding: 14px 16px !important;
+                box-sizing: border-box !important;
+            }
+            .task-add-main-row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
+            .task-title-input {
+                width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                padding: 11px 14px !important;
+                font-size: 0.92rem !important;
+            }
+            .task-add-submit-btn {
+                width: 100% !important;
+                padding: 11px 16px !important;
+                justify-content: center !important;
+                font-size: 0.92rem !important;
+                font-weight: 600 !important;
+                box-sizing: border-box !important;
+            }
             .task-meta-row {
-                flex-wrap: wrap;
-                gap: 8px;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
-            .task-add-btn {
-                width: 100%;
-                padding: 12px;
-                font-size: 0.95rem;
-                justify-content: center;
+            .task-select-mini,
+            .task-time-input,
+            .task-notes-toggle {
+                width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                padding: 8px 10px !important;
+                font-size: 0.82rem !important;
             }
+            .task-notes-toggle {
+                justify-content: center !important;
+            }
+            .task-notes-textarea {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
             .task-item {
-                padding: 12px 10px;
-                gap: 10px;
-                align-items: flex-start;
+                padding: 12px 10px !important;
+                gap: 10px !important;
+                align-items: flex-start !important;
             }
             .task-item-checkbox {
-                min-width: 24px;
-                min-height: 24px;
-                margin-top: 2px;
+                min-width: 24px !important;
+                min-height: 24px !important;
+                margin-top: 2px !important;
             }
 
             /* Reports Grid on Mobile */
@@ -4200,15 +4327,33 @@
                 grid-template-columns: 1fr !important;
                 gap: 16px;
             }
+            .report-card {
+                padding: 18px 16px !important;
+            }
             .report-btn-group {
-                flex-direction: column;
-                gap: 8px;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
             }
             .report-btn-group .download-action-btn {
-                width: 100%;
-                justify-content: center;
-                padding: 12px;
-                font-size: 0.9rem;
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 10px 8px !important;
+                font-size: 0.85rem !important;
+                box-sizing: border-box !important;
+            }
+            .report-input-row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .report-input-row > div {
+                width: 100% !important;
+            }
+            .report-input-row input {
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
 
             /* Settings Card on Mobile */
@@ -4229,6 +4374,8 @@
             .settings-input {
                 font-size: 16px !important;
                 padding: 10px 12px;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             .settings-submit-btn {
                 width: 100%;
@@ -4240,60 +4387,34 @@
                 gap: 6px;
             }
 
-            /* Modal Dialogs on Mobile */
+            /* Modal Dialogs on Mobile: Zero Clipping & Zero Horizontal Scroll */
             .modal {
-                padding: 8px !important;
+                padding: 16px 8px !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
             }
             .modal-content,
             .calendar-day-dialog {
-                width: 96% !important;
-                max-width: 96% !important;
-                max-height: 88vh !important;
-                margin: 8px auto !important;
-                padding: 18px 14px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                margin: 0 auto !important;
+                padding: 20px 14px !important;
                 border-radius: 16px !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden !important;
+                overflow-y: visible !important;
+                box-sizing: border-box !important;
             }
             .modal-close {
-                top: 12px;
-                right: 12px;
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
+                top: 12px !important;
+                right: 12px !important;
+                width: 34px !important;
+                height: 34px !important;
+                font-size: 1rem !important;
             }
-        }
-
-        @media (max-width: 520px) {
-            .workspace-nav-tabs {
-                display: grid !important;
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 4px !important;
-                padding: 6px 3px !important;
-                overflow: visible !important;
-            }
-            .ws-tab-btn {
-                min-width: 0 !important;
-                width: 100% !important;
-                padding: 7px 2px !important;
-                flex-direction: column !important;
-                gap: 3px !important;
-                border-radius: 8px !important;
-            }
-            .ws-tab-btn svg {
-                width: 17px !important;
-                height: 17px !important;
-            }
-            .ws-tab-btn span {
-                font-size: 0.65rem !important;
-                line-height: 1.15 !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-                max-width: 100%;
-            }
-            .pdf-sub-switch-btn {
-                flex: 1 1 calc(50% - 4px);
+            .asset-form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
             }
         }
 
@@ -4810,8 +4931,11 @@
         /* Asset Modal Form */
         .asset-form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 14px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         .asset-form-grid .full-width {
             grid-column: 1 / -1;
@@ -4820,6 +4944,9 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
         .asset-form-group label {
             font-size: 0.8rem;
@@ -4829,6 +4956,10 @@
         .asset-form-group input,
         .asset-form-group select,
         .asset-form-group textarea {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
             padding: 9px 12px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--glass-border);
@@ -4851,8 +4982,16 @@
         .asset-tag-row {
             display: flex;
             gap: 8px;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
         }
-        .asset-tag-row input { flex: 1; }
+        .asset-tag-row input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
         .asset-tag-gen-btn {
             padding: 0 14px;
             border-radius: var(--radius-sm);
@@ -4864,11 +5003,14 @@
             font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
+            flex-shrink: 0;
             transition: all 0.2s;
         }
         .asset-tag-gen-btn:hover { background: var(--accent-primary); color: #fff; }
         .asset-form-submit {
             grid-column: 1 / -1;
+            width: 100%;
+            box-sizing: border-box;
             padding: 12px;
             border-radius: var(--radius-sm);
             border: none;
@@ -5196,7 +5338,6 @@
                     <button class="color-swatch" data-color="#4f46e5" data-hover="#4338ca" style="background-color: #4f46e5;" title="คราม (Indigo)"></button>
                     <button class="color-swatch" data-color="#059669" data-hover="#047857" style="background-color: #059669;" title="เขียว (Emerald)"></button>
                     <button class="color-swatch" data-color="#7c3aed" data-hover="#6d28d9" style="background-color: #7c3aed;" title="ม่วง (Violet)"></button>
-                    <button class="color-swatch" data-color="#d97706" data-hover="#b45309" style="background-color: #d97706;" title="ส้ม (Amber)"></button>
                     <button class="color-swatch" data-color="#e11d48" data-hover="#be123c" style="background-color: #e11d48;" title="แดง (Rose)"></button>
                     <button class="color-swatch" data-color="#475569" data-hover="#334155" style="background-color: #475569;" title="เทา (Slate)"></button>
                     <label class="custom-color-picker-label" title="เลือกสีเอง">
@@ -5226,7 +5367,7 @@
         </button>
         <button class="ws-tab-btn" data-tab="reports" id="tabReportsBtn">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            <span>ออกรายงาน (PDF)</span>
+            <span>ออกรายงาน</span>
         </button>
         <button class="ws-tab-btn" data-tab="assets" id="tabAssetsBtn">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -5282,7 +5423,7 @@
                     <span>กำลังโหลดวันที่...</span>
                 </div>
 
-                <div class="date-picker-wrap" style="display: flex; align-items: center; gap: 8px;">
+                <div class="date-picker-wrap">
                     <!-- Admin Employee Filter Selector -->
                     <div id="adminTaskUserFilterWrap" style="display: none; align-items: center; gap: 6px;">
                         <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;">
@@ -5304,7 +5445,7 @@
                         <span id="progressTitle">ความคืบหน้าของวันนี้</span>
                         <span class="badge" id="progressPercentBadge" style="background: var(--accent-subtle); color: var(--accent-primary); font-size: 0.85rem; padding: 2px 8px; border-radius: 999px;">0%</span>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div class="quick-export-btn-group">
                         <a href="#" id="quickExportTodayBtn" class="quick-export-btn" target="_blank" title="เปิดดู/พิมพ์รายงาน PDF วันนี้">
                             <svg class="icon icon-xs" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                             <span>พิมพ์ / PDF</span>
@@ -5314,7 +5455,6 @@
                             <span>โหลด Excel</span>
                         </a>
                     </div>
-
                 </div>
 
                 <div class="progress-bar-track">
@@ -6584,7 +6724,7 @@
     <button class="modal-close" id="assetModalClose">
         <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-content" style="max-width: 640px; padding: 28px; background: var(--bg-secondary); border: 1px solid var(--glass-border);">
+    <div class="modal-content" style="max-width: 640px;">
         <h3 style="color: var(--text-primary); margin-bottom: 20px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
             <span id="assetModalTitle">ลงทะเบียนอุปกรณ์ใหม่</span>
@@ -6686,7 +6826,7 @@
     <button class="modal-close" id="deptModalClose">
         <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-content" style="max-width: 520px; padding: 28px; background: var(--bg-secondary); border: 1px solid var(--glass-border);">
+    <div class="modal-content" style="max-width: 520px;">
         <h3 style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
             <span>จัดการแผนก</span>
@@ -6711,7 +6851,7 @@
     <button class="modal-close" id="handoverModalClose">
         <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-content" style="max-width: 700px; padding: 24px; background: var(--bg-secondary); border: 1px solid var(--glass-border);">
+    <div class="modal-content" style="max-width: 700px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h3 style="color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -6726,12 +6866,14 @@
             <!-- Dynamic handover content -->
         </div>
     </div>
+</div>
+
 <!-- Admin Direct Create User Modal -->
 <div class="modal" id="adminCreateUserModal">
     <button class="modal-close" id="adminCreateUserModalClose">
         <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-content" style="max-width: 520px; padding: 28px; background: var(--bg-secondary); border: 1px solid var(--glass-border);">
+    <div class="modal-content" style="max-width: 520px;">
         <h3 style="color: var(--text-primary); margin-bottom: 18px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
             <span>เพิ่มบัญชีผู้ใช้งานใหม่โดยตรง</span>
@@ -6836,7 +6978,7 @@
     <button class="modal-close" id="editModalClose">
         <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-content" style="max-width: 500px; padding: 28px; background: var(--bg-secondary); border: 1px solid var(--glass-border);">
+    <div class="modal-content" style="max-width: 500px;">
         <h3 style="color: var(--text-primary); margin-bottom: 18px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
             <span>แก้ไขข้อมูลงาน</span>
