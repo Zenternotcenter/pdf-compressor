@@ -7780,6 +7780,9 @@
             initReportsView();
         } else if (tabKey === 'settings') {
             loadSettingsProfile();
+            if (currentAuthUser && currentAuthUser.role === 'admin') {
+                loadAdminUsers();
+            }
         } else if (tabKey === 'assets') {
             initAssetsView();
         }
@@ -7930,7 +7933,6 @@
                     } else {
                         topPendingBadge.style.display = 'none';
                     }
-                    loadAdminUsers();
                 } else {
                     if (adminUserSec) adminUserSec.style.display = 'none';
                     if (adminUserFilterWrap) adminUserFilterWrap.style.display = 'none';
@@ -8362,23 +8364,35 @@
         });
     }
 
-    async function loadTaskUsersFilter() {
+    let cachedTaskUsers = null;
+    async function loadTaskUsersFilter(force = false) {
         const sel = document.getElementById('adminTaskUserSelect');
         if (!sel) return;
+        if (!force && cachedTaskUsers && cachedTaskUsers.length > 0) {
+            renderTaskUsersDropdown(cachedTaskUsers);
+            return;
+        }
         try {
             const res = await fetch('/api/tasks/users-list');
             const data = await res.json();
             if (data.success && data.users) {
-                let html = '<option value="all">👥 พนักงานทุกคน (ภาพรวม)</option>';
-                data.users.forEach(u => {
-                    const dept = u.department_name ? ` - ${u.department_name}` : '';
-                    const roleTag = u.role === 'admin' ? ' [Admin]' : '';
-                    html += `<option value="${u.id}">${escapeHtml(u.full_name || u.username)}${roleTag}${dept}</option>`;
-                });
-                sel.innerHTML = html;
-                sel.value = currentAdminTaskUser;
+                cachedTaskUsers = data.users;
+                renderTaskUsersDropdown(data.users);
             }
         } catch (e) {}
+    }
+
+    function renderTaskUsersDropdown(users) {
+        const sel = document.getElementById('adminTaskUserSelect');
+        if (!sel) return;
+        let html = '<option value="all">👥 พนักงานทุกคน (ภาพรวม)</option>';
+        users.forEach(u => {
+            const dept = u.department_name ? ` - ${u.department_name}` : '';
+            const roleTag = u.role === 'admin' ? ' [Admin]' : '';
+            html += `<option value="${u.id}">${escapeHtml(u.full_name || u.username)}${roleTag}${dept}</option>`;
+        });
+        sel.innerHTML = html;
+        sel.value = currentAdminTaskUser;
     }
 
     const taskProgressBarFill = document.getElementById('taskProgressBarFill');
@@ -8593,57 +8607,90 @@
         }
     }
 
-    // --- Task Form Submit ---
+    // --- Task Form Submit with Instant Optimistic UI (Zero Lag 0ms) ---
     if (quickTaskForm) {
         quickTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = taskTitleInput.value.trim();
             if (!title) return;
 
-            const submitBtn = quickTaskForm.querySelector('button[type="submit"]');
-            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<svg class="icon icon-xs spin" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line></svg> <span>กำลังบันทึก...</span>';
-            }
+            const category = taskCategorySelect.value;
+            const priority = taskPrioritySelect.value;
+            const time_spent = taskTimeInput.value.trim();
+            const notes = taskNotesTextarea.value.trim();
 
-            const payload = {
+            // 1. Instantly create and render an optimistic task card (0ms response!)
+            const tempId = 'temp_' + Date.now();
+            const optimisticTask = {
+                id: tempId,
                 date: currentTaskDate,
                 title: title,
-                category: taskCategorySelect.value,
-                priority: taskPrioritySelect.value,
-                time_spent: taskTimeInput.value.trim(),
-                notes: taskNotesTextarea.value.trim()
+                category: category,
+                priority: priority,
+                status: 'todo',
+                time_spent: time_spent,
+                notes: notes,
+                creator_display_name: currentAuthUser ? (currentAuthUser.display_name || currentAuthUser.username) : '',
+                created_at: new Date().toISOString()
             };
 
+            loadedTasks.unshift(optimisticTask);
+            const total = loadedTasks.length;
+            const done = loadedTasks.filter(t => t.status === 'done').length;
+            const in_prog = loadedTasks.filter(t => t.status === 'in_progress').length;
+            const todo = total - done - in_prog;
+            const percent = total > 0 ? Math.round(done / total * 100) : 0;
+            updateProgressStats({ total, done, in_progress: in_prog, todo, percent });
+            renderTasksList();
+            refreshCalendarIfNeeded();
+
+            // Reset inputs immediately so the user can continue typing without delay
+            taskTitleInput.value = '';
+            taskTimeInput.value = '';
+            taskNotesTextarea.value = '';
+            taskNotesTextarea.style.display = 'none';
+            if (toggleNotesBtn) {
+                toggleNotesBtn.innerHTML = '<svg class="icon icon-xs" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span>เพิ่มบันทึกย่อ</span>';
+            }
+            showToast('บันทึกงานใหม่เรียบร้อยแล้ว');
+
+            // 2. Sync to Server in Background
             try {
                 const res = await fetch('/api/tasks', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        date: currentTaskDate,
+                        title: title,
+                        category: category,
+                        priority: priority,
+                        time_spent: time_spent,
+                        notes: notes
+                    })
                 });
                 const data = await res.json();
-                if (data.success) {
-                    taskTitleInput.value = '';
-                    taskTimeInput.value = '';
-                    taskNotesTextarea.value = '';
-                    taskNotesTextarea.style.display = 'none';
-                    if (toggleNotesBtn) {
-                        toggleNotesBtn.innerHTML = '<svg class="icon icon-xs" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span>เพิ่มบันทึกย่อ</span>';
+                if (data.success && data.id) {
+                    optimisticTask.id = data.id;
+                    const card = document.getElementById(`taskCard_${tempId}`);
+                    if (card) {
+                        card.id = `taskCard_${data.id}`;
+                        const chk = card.querySelector('.task-checkbox-custom');
+                        if (chk) chk.setAttribute('onclick', `toggleTaskStatus(${data.id})`);
+                        const editBtn = card.querySelector('.task-action-btn:first-child');
+                        if (editBtn) editBtn.setAttribute('onclick', `openEditModal(${data.id})`);
+                        const delBtn = card.querySelector('.task-action-btn:last-child');
+                        if (delBtn) delBtn.setAttribute('onclick', `deleteTaskItem(${data.id})`);
                     }
-                    showToast('บันทึกงานใหม่เรียบร้อยแล้ว');
-                    loadTasksForDate(currentTaskDate);
-                    refreshCalendarIfNeeded();
                 } else {
+                    // Revert on error
+                    loadedTasks = loadedTasks.filter(t => t.id !== tempId);
+                    renderTasksList();
                     alert(data.error || 'เกิดข้อผิดพลาดในการบันทึกงาน');
                 }
             } catch (err) {
+                loadedTasks = loadedTasks.filter(t => t.id !== tempId);
+                renderTasksList();
                 alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnHtml;
-                }
             }
         });
     }
@@ -8689,20 +8736,38 @@
         }
     };
 
-    // Delete Task
+    // Delete Task with Instant Optimistic UI (Zero Lag 0ms)
     window.deleteTaskItem = async function(id) {
+        const taskIdx = loadedTasks.findIndex(t => t.id === id);
+        if (taskIdx === -1) return;
+        const removedTask = loadedTasks[taskIdx];
+
+        // 1. Instantly remove from local memory & UI (0ms delay!)
+        loadedTasks.splice(taskIdx, 1);
+        const total = loadedTasks.length;
+        const done = loadedTasks.filter(t => t.status === 'done').length;
+        const in_prog = loadedTasks.filter(t => t.status === 'in_progress').length;
+        const todo = total - done - in_prog;
+        const percent = total > 0 ? Math.round(done / total * 100) : 0;
+        updateProgressStats({ total, done, in_progress: in_prog, todo, percent });
+        renderTasksList();
+        showToast('ลบรายการงานเรียบร้อยแล้ว');
+        refreshCalendarIfNeeded();
+
+        // 2. Sync deletion to server in background
         try {
             const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
             const data = await res.json();
-            if (data.success) {
-                showToast('ลบรายการงานเรียบร้อยแล้ว');
-                loadTasksForDate(currentTaskDate);
-                refreshCalendarIfNeeded();
-            } else {
-                alert('ไม่สามารถลบงานได้');
+            if (!data.success) {
+                // Revert on error
+                loadedTasks.splice(taskIdx, 0, removedTask);
+                renderTasksList();
+                alert(data.error || 'ไม่สามารถลบงานได้');
             }
         } catch (e) {
-            alert('ไม่สามารถลบงานได้');
+            loadedTasks.splice(taskIdx, 0, removedTask);
+            renderTasksList();
+            alert('ไม่สามารถลบงานได้ เกิดข้อผิดพลาดในการเชื่อมต่อ');
         }
     };
 
@@ -10214,8 +10279,13 @@
         } catch(e) { console.error(e); }
     }
 
-    // --- Departments ---
-    async function loadDepartments() {
+    // --- Departments with Client Memory Caching ---
+    async function loadDepartments(force = false) {
+        if (!force && assetDeptCache && assetDeptCache.length > 0) {
+            renderDeptPills(assetDeptCache);
+            updateDeptSelects(assetDeptCache);
+            return;
+        }
         try {
             const res = await fetch('/api/departments');
             const data = await res.json();
